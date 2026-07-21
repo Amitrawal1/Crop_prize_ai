@@ -1,5 +1,3 @@
-# Crop_prize_ai
-
 # Crop Price  AI
 
 ## Problem Statement

@@ -1,4 +1,4 @@
-from services.agmarknet.client import AgmarknetClient
+from app.services.agmarknet.client import AgmarknetClient
 
 
 def main():

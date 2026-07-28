@@ -1,16 +1,13 @@
-import os
 import logging
 import requests
+from app.core.config import BASE_URL, DASHBOARD_NAME
 
-from dotenv import load_dotenv
-
-load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class AgmarknetClient:
-
     def __init__(self) -> None:
-        self.base_url = os.getenv("BASE_URL")
+        self.base_url = BASE_URL
 
         self.headers = {
             "accept": "application/json, text/plain, */*",
@@ -24,49 +21,34 @@ class AgmarknetClient:
             ),
         }
 
-        logging.basicConfig(level=logging.INFO)
-
     def _request(
         self,
         method: str,
         endpoint: str,
         params: dict | None = None,
-        json: dict | None = None,
-    ) -> dict:
-
+    ):
         url = f"{self.base_url}/{endpoint}"
 
-        logging.info(f"{method} {url}")
+        logger.info(f"{method} {url}")
 
         if method == "GET":
-
             response = requests.get(
                 url,
                 headers=self.headers,
                 params=params,
                 timeout=30,
             )
-
-        elif method == "POST":
-
-            response = requests.post(
-                url,
-                headers=self.headers,
-                json=json,
-                timeout=30,
-            )
-
         else:
-            raise ValueError(f"Unsupported HTTP Method: {method}")
+            raise ValueError(f"Unsupported method: {method}")
+
 
         response.raise_for_status()
 
         return response.json()
 
-    def get_filters(self) -> dict:
-
+    def get_filters(self):
         params = {
-            "dashboard_name": "marketwise_price_arrival"
+            "dashboard_name": DASHBOARD_NAME,
         }
 
         return self._request(
@@ -75,11 +57,9 @@ class AgmarknetClient:
             params=params,
         )
 
-    def get_dashboard_data(self, payload: dict) -> dict:
-
+    def get_dashboard_data(self, params: dict):
         return self._request(
-            method="POST",
+            method="GET",
             endpoint="dashboard-data/",
-            json=payload,
+            params=params,
         )
-        

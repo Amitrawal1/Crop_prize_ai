@@ -1,13 +1,17 @@
-from app.services.agmarknet.client import AgmarknetClient
+from fastapi import FastAPI
+
+from app.api.routes.state import router as state_router
+
+app = FastAPI(
+    title="Crop Price AI API",
+)
+
+app.include_router(state_router)
 
 
-def main() -> None:
-    client = AgmarknetClient()
+@app.get("/")
+def root():
 
-    filters = client.get_filters()
-
-    print(filters["data"].keys())
-
-
-if __name__ == "__main__":
-    main()
+    return {
+        "message": "Crop Price AI Backend Running"
+    }

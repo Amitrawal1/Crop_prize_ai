@@ -42,10 +42,21 @@ class AgmarknetClient:
             raise ValueError(f"Unsupported method: {method}")
 
 
+        
         response.raise_for_status()
 
-        return response.json()
+        data = response.json()
+        
+        if "status" not in data:
+            raise ValueError("Missing 'status' in API response.")
 
+        if "data" not in data:
+            raise ValueError("Missing 'data' in API response.")
+
+        return data
+        
+        
+        
     def get_filters(self):
         params = {
             "dashboard_name": DASHBOARD_NAME,

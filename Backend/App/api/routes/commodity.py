@@ -1,0 +1,15 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from app.api.dependencies import get_db
+from app.models.commodity import Commodity
+
+router = APIRouter()
+
+
+@router.get("/commodities")
+def get_commodities(
+    db: Session = Depends(get_db),
+):
+
+    return db.query(Commodity).all()

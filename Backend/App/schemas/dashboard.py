@@ -10,4 +10,4 @@ class DashboardRequest(BaseModel):
     variety_id: int = 100021
     grade_id: int = 4
 
-    date: str
+    date: str | None = None

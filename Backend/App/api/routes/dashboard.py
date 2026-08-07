@@ -1,52 +1,33 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from app.schemas.response import DashboardResponse
 
 from app.api.dependencies import get_db
-from app.repositories.market_repository import MarketRepository
 from app.schemas.dashboard import DashboardRequest
-from app.services.agmarknet.client import AgmarknetClient
+from app.services.dashboard.service import DashboardService
+from app.services.dashboard.formatter import format_dashboard_response
 
 router = APIRouter()
 
 
-@router.post("/dashboard")
+@router.post(
+    "/dashboard",
+    response_model=DashboardResponse,
+    )
+
 def get_dashboard(
     request: DashboardRequest,
     db: Session = Depends(get_db),
 ):
 
-    market_repository = MarketRepository(db)
+    service = DashboardService(db)
 
-    markets = market_repository.get_markets_by_district(
-        request.district_id,
+    data = service.get_dashboard(
+        state_id=request.state_id,
+        district_id=request.district_id,
+        commodity_id=request.commodity_id,
+        variety_id=request.variety_id,
+        grade_id=request.grade_id,
+        request_date=request.date,
     )
-
-    market_ids = [market.id for market in markets]
-
-    client = AgmarknetClient()
-
-    payload = client.build_dashboard_payload(
-        date=request.date,
-        group=[100000],
-        commodity=[request.commodity_id],
-        variety=request.variety_id,
-        state=request.state_id,
-        district=[request.district_id],
-        market=market_ids,
-        grades=[request.grade_id],
-    )
-
-    data = client.get_dashboard_data(payload)
-
-    if data["status"] != "success":
-        return {
-            "status": False,
-            "message": data["message"],
-            "records": [],
-        }
-
-    return {
-        "status": True,
-        "message": data["message"],
-        "records": data["data"]["records"],
-    }
+    return format_dashboard_response(data)
